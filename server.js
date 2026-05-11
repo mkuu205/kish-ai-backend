@@ -3,9 +3,9 @@ const cors    = require("cors");
 const helmet  = require("helmet");
 const compression = require("compression");
 const pinoHttp = require("pino-http");
-const logger  = require("./src/utils/logger");
-const config = require('../../config');
-const routes  = require("./src/routes");
+const logger  = require("./src/utils/logger");     // ✅ Correct
+const config  = require("./config");               // ✅ FIXED - now './config'
+const routes  = require("./src/routes");           // ✅ Correct
 const { errorHandler, notFoundHandler } = require("./middleware/error.middleware");
 
 const app = express();
