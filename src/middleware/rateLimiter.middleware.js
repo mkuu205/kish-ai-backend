@@ -1,21 +1,26 @@
-// src/middleware/rateLimiter.middleware.js
 const rateLimit = require("express-rate-limit");
 const config = require("../../config");
 
-const makeRateLimiter = (options) =>
-  rateLimit({
-    windowMs: options.windowMs,
-    max: options.max,
+function makeRateLimiter(options = {}) {
+  return rateLimit({
+    windowMs: options.windowMs || 15 * 60 * 1000,
+    max: options.max || 100,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { success: false, message: "Too many requests. Please slow down." },
-    skip: (req) => req.userFull?.role === "ADMIN",
+
+    message: {
+      success: false,
+      message: "Too many requests, please try again later.",
+    },
   });
+}
 
-const authLimiter    = makeRateLimiter(config.rateLimits.auth);
-const chatLimiter    = makeRateLimiter(config.rateLimits.chat);
-const paymentLimiter = makeRateLimiter(config.rateLimits.payment);
-const supportLimiter = makeRateLimiter(config.rateLimits.support);
-const generalLimiter = makeRateLimiter(config.rateLimits.general);
+const authLimiter = makeRateLimiter(config.rateLimits?.auth);
 
-module.exports = { authLimiter, chatLimiter, paymentLimiter, supportLimiter, generalLimiter };
+const apiLimiter = makeRateLimiter(config.rateLimits?.api);
+
+module.exports = {
+  authLimiter,
+  apiLimiter,
+  makeRateLimiter,
+};
