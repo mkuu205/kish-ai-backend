@@ -4,7 +4,7 @@ const helmet  = require("helmet");
 const compression = require("compression");
 const pinoHttp = require("pino-http");
 const logger  = require("./src/utils/logger");
-const config  = require("./config");
+const config = require('../../config');
 const routes  = require("./src/routes");
 const { errorHandler, notFoundHandler } = require("./middleware/error.middleware");
 
