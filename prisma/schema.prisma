@@ -87,7 +87,6 @@ model User {
 
   conversations     Conversation[]
   refreshTokens     RefreshToken[]
-  otpCodes          OtpCode[]
   payments          Payment[]
   subscription      Subscription?
   activityLogs      ActivityLog[]
