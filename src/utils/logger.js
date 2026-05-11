@@ -1,14 +1,43 @@
-// src/utils/logger.js
-const pino = require("pino");
-const config = require('../../config');   
+const pino = require('pino');
+const path = require('path');
+const config = require('../../../config');  
 
+// Create logs directory if it doesn't exist
+const fs = require('fs');
+const logDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+// Configure logger based on environment
+const isProduction = config.env === 'production';
+
+// Create logger instance
 const logger = pino({
-  level: config.isDev ? "debug" : "info",
-  transport: config.isDev
-    ? { target: "pino-pretty", options: { colorize: true, translateTime: "SYS:HH:MM:ss", ignore: "pid,hostname" } }
+  level: isProduction ? 'info' : 'debug',
+  transport: !isProduction
+    ? {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          translateTime: 'SYS:standard',
+          ignore: 'pid,hostname',
+        },
+      }
     : undefined,
-  base: { service: "kish-ai-backend", env: config.env },
-  redact: ["req.headers.authorization", "body.password", "body.otp"],
+  base: {
+    env: config.env,
+    service: 'kish-ai-backend',
+  },
+  timestamp: pino.stdTimeFunctions.isoTime,
 });
 
-module.exports = logger;
+// Create a child logger for specific modules
+const createChildLogger = (module) => {
+  return logger.child({ module });
+};
+
+module.exports = {
+  logger,
+  createChildLogger,
+};
