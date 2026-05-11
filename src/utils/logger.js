@@ -1,7 +1,6 @@
 const pino = require('pino');
 const path = require('path');
-const config = require('../../../config');  
-
+const redisConfig = require('../config/redis');
 // Create logs directory if it doesn't exist
 const fs = require('fs');
 const logDir = path.join(process.cwd(), 'logs');
