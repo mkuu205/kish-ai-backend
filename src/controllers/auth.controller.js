@@ -3,7 +3,7 @@
 const bcrypt  = require("bcryptjs");
 const jwt     = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
-const config  = require("../config");
+const config = require("../../config");
 const R       = require("../utils/response");
 const logger  = require("../utils/logger");
 const otpSvc  = require("../services/otp.service");
