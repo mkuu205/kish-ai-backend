@@ -18,6 +18,10 @@ module.exports = {
     apiKey: process.env.ANTHROPIC_API_KEY || "",
   },
 
+  otp: {
+  expiryMinutes: 10,
+},
+  
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY || "",
   },
