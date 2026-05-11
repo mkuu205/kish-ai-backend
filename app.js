@@ -8,7 +8,7 @@ const logger = require("./src/utils/logger");
 const config = require("./config");
 
 // Direct route import
-const authRoutes = require("./src/routes/auth.route");
+const authRoutes = require("./src/routes/auth.routes");
 
 const {
   errorHandler,
