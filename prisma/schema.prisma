@@ -1,0 +1,365 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPPORT_AGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_USER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  BILLING
+  TECHNICAL
+  ACCOUNT
+  FEATURE_REQUEST
+  BUG_REPORT
+  OTHER
+}
+
+enum PaymentMethod {
+  STRIPE
+  MPESA
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+  PAUSED
+}
+
+// ─── MODELS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                String       @id @default(cuid())
+  name              String
+  email             String       @unique
+  password          String
+  plan              Plan         @default(FREE)
+  role              UserRole     @default(USER)
+  verified          Boolean      @default(false)
+  avatarUrl         String?
+  stripeCustomerId  String?      @unique
+  totalMessages     Int          @default(0)
+  dailyMessages     Int          @default(0)
+  dailyResetAt      DateTime     @default(now())
+  lastActiveAt      DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  conversations     Conversation[]
+  refreshTokens     RefreshToken[]
+  otpCodes          OtpCode[]
+  payments          Payment[]
+  subscription      Subscription?
+  activityLogs      ActivityLog[]
+  supportTickets    SupportTicket[]
+  liveChatSessions  LiveChatSession[]
+  notifications     Notification[]
+
+  @@index([email])
+  @@index([plan])
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family    String   @default(cuid())
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  type      String   @default("verify") // verify | reset | login
+  attempts  Int      @default(0)
+  usedAt    DateTime?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+  @@map("otp_codes")
+}
+
+model Conversation {
+  id           String    @id @default(cuid())
+  title        String    @default("New Conversation")
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode         String    @default("general")
+  model        String    @default("claude-sonnet-4-20250514")
+  systemPrompt String?   @db.Text
+  totalTokens  Int       @default(0)
+  messageCount Int       @default(0)
+  pinned       Boolean   @default(false)
+  archived     Boolean   @default(false)
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  messages     Message[]
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@index([pinned])
+  @@map("conversations")
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role            String       // user | assistant | system
+  content         String       @db.Text
+  tokens          Int?
+  fileUrl         String?
+  fileType        String?
+  fileName        String?
+  fileSize        Int?
+  webSearchUsed   Boolean      @default(false)
+  modelUsed       String?
+  latencyMs       Int?
+  createdAt       DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([createdAt(sort: Desc)])
+  @@map("messages")
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 Plan
+  status               SubscriptionStatus @default(ACTIVE)
+  method               PaymentMethod
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  mpesaPhone           String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  cancelledAt          DateTime?
+  trialEndsAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reference   String        @unique
+  payheroRef  String?
+  amount      Decimal       @db.Decimal(10, 2)
+  currency    String        @default("USD")
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+  description String?
+  metadata    Json?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([reference])
+  @@index([status])
+  @@index([method])
+  @@index([createdAt(sort: Desc)])
+  @@map("payments")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type      String
+  data      Json     @default("{}")
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+  @@map("activity_logs")
+}
+
+model SupportTicket {
+  id           String         @id @default(cuid())
+  ticketNumber String         @unique
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId      String?
+  agent        SupportAgent?  @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  title        String
+  status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
+  category     TicketCategory @default(OTHER)
+  resolvedAt   DateTime?
+  closedAt     DateTime?
+  firstReplyAt DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  messages      TicketMessage[]
+  notifications Notification[]
+
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt(sort: Desc)])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id          String        @id @default(cuid())
+  ticketId    String
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId    String
+  senderName  String
+  senderRole  String        // user | agent | ai
+  content     String        @db.Text
+  attachments String[]
+  isInternal  Boolean       @default(false)
+  readAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  @@index([ticketId])
+  @@index([createdAt])
+  @@map("ticket_messages")
+}
+
+model SupportAgent {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  password    String
+  avatarUrl   String?
+  isOnline    Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tickets      SupportTicket[]
+  liveSessions LiveChatSession[]
+
+  @@map("support_agents")
+}
+
+model LiveChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId   String?
+  agent     SupportAgent? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  status    String        @default("waiting") // waiting | active | closed | transferred
+  topic     String?
+  rating    Int?
+  feedback  String?
+  endedAt   DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  messages  LiveChatMessage[]
+
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+  @@map("live_chat_sessions")
+}
+
+model LiveChatMessage {
+  id            String          @id @default(cuid())
+  sessionId     String
+  session       LiveChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId      String
+  senderRole    String          // user | agent | ai | system
+  senderName    String
+  content       String          @db.Text
+  attachmentUrl String?
+  metadata      Json?
+  readAt        DateTime?
+  createdAt     DateTime        @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("live_chat_messages")
+}
+
+model Notification {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketId  String?
+  ticket    SupportTicket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  type      String         // ticket_reply | ticket_resolved | payment_success | system
+  title     String
+  message   String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime       @default(now())
+
+  @@index([userId])
+  @@index([readAt])
+  @@index([createdAt(sort: Desc)])
+  @@map("notifications")
+}
