@@ -2,7 +2,9 @@
   "name": "kish-ai-backend",
   "version": "3.0.0",
   "description": "Kish AI Enterprise Backend",
-  "main": "src/server.js",
+
+  "main": "server.js",
+
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
@@ -14,6 +16,7 @@
     "lint": "eslint src/**/*.js",
     "test": "jest"
   },
+
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
     "@prisma/client": "^5.14.0",
@@ -39,11 +42,13 @@
     "xss": "^1.0.15",
     "zod": "^3.23.8"
   },
+
   "devDependencies": {
     "nodemon": "^3.1.0",
     "prisma": "^5.14.0"
   },
+
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   }
 }
