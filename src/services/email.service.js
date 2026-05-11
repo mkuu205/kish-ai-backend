@@ -1,6 +1,6 @@
 // src/services/email.service.js
 const nodemailer = require("nodemailer");
-const config     = require("../config");
+const config = require("../../config");
 const logger     = require("../utils/logger");
 
 const transporter = nodemailer.createTransport({
