@@ -1,12 +1,9 @@
 const http = require("http");
 const app = require("./app");
 const config = require("./config");
-
 const logger = require("./src/utils/logger");
-
 const { initSockets } = require("./src/sockets");
 const { initQueues } = require("./src/jobs");
-
 const { PrismaClient } = require("@prisma/client");
 const Redis = require("ioredis");
 
