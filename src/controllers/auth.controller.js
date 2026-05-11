@@ -8,7 +8,7 @@ const R       = require("../utils/response");
 const logger  = require("../utils/logger");
 const otpSvc  = require("../services/otp.service");
 const emailSvc = require("../services/email.service");
-const { addEmailJob } = require("../../jobs");
+const { addEmailJob } = require("../jobs");
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 function signAccessToken(payload) {
