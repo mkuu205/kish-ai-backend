@@ -1,6 +1,6 @@
 // src/services/ai.service.js
 const Anthropic = require("@anthropic-ai/sdk");
-const config    = require("../config");
+const config = require("../../config");
 const logger    = require("../utils/logger");
 const { AI_MODES } = require("../constants");
 
