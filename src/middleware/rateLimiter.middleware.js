@@ -1,6 +1,6 @@
 // src/middleware/rateLimiter.middleware.js
 const rateLimit = require("express-rate-limit");
-const config    = require("../config");
+const config = require("../../config");
 
 const makeRateLimiter = (options) =>
   rateLimit({
