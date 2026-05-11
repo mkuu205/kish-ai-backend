@@ -7,7 +7,8 @@ const pinoHttp = require("pino-http");
 const logger = require("./src/utils/logger");
 const config = require("./config");
 
-const routes = require("./src/routes");
+// Direct route import
+const authRoutes = require("./src/routes/auth.route");
 
 const {
   errorHandler,
@@ -102,7 +103,7 @@ app.get("/health", (req, res) => {
 // API Routes
 // ─────────────────────────────────────────────────────────────
 
-app.use("/api/v1", routes);
+app.use("/api/v1/auth", authRoutes);
 
 // ─────────────────────────────────────────────────────────────
 // Error Handlers
