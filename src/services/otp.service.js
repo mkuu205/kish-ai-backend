@@ -1,6 +1,6 @@
 // src/services/otp.service.js
 const crypto = require("crypto");
-const config = require("../config");
+const config = require("../../config");
 const logger = require("../utils/logger");
 
 const OTP_PREFIX = "otp:";
