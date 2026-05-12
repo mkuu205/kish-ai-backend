@@ -7,7 +7,10 @@ const pinoHttp = require("pino-http");
 const logger = require("./src/utils/logger");
 const config = require("./config");
 
-const authRoutes = require("./src/routes/auth.routes");
+const authRoutes    = require("./src/routes/auth.routes");
+const chatRoutes    = require("./src/routes/chat.routes");
+const paymentRoutes = require("./src/routes/payment.routes");
+const userRoutes    = require("./src/routes/user.routes");
 
 const {
   errorHandler,
@@ -103,7 +106,11 @@ app.get("/health", (req, res) => {
 // API Routes
 // ─────────────────────────────────────────────────────────────
 
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/auth",     authRoutes);
+app.use("/api/v1/chat",     chatRoutes);
+app.use("/api/v1/payment",  paymentRoutes);
+app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/user",     userRoutes);
 
 // ─────────────────────────────────────────────────────────────
 // Error Handlers
