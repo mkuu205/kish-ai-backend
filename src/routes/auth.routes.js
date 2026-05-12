@@ -19,7 +19,7 @@ const {
   authLimiter,
 } = require("../middleware/rateLimiter.middleware");
 
-const authMiddleware = require("../middleware/auth.middleware");
+const { auth } = require("../middleware/auth.middleware");
 
 // Register
 router.post(
@@ -45,16 +45,16 @@ router.post(
   verifyOtp
 );
 
-// Refresh Token
+// Refresh token
 router.post(
   "/refresh",
   refreshToken
 );
 
-// CURRENT USER
+// Current user
 router.get(
   "/me",
-  authMiddleware,
+  auth,
   async (req, res) => {
     res.json({
       success: true,
