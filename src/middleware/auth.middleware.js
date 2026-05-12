@@ -1,7 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
 
 async function auth(req, res, next) {
   try {
@@ -21,22 +18,14 @@ async function auth(req, res, next) {
       process.env.JWT_ACCESS_SECRET
     );
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: decoded.userId || decoded.id,
-      },
-    });
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+    };
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    req.user = user;
     next();
-  } catch {
+  } catch (err) {
     return res.status(401).json({
       success: false,
       message: "Invalid token",
