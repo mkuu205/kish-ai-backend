@@ -1,10 +1,15 @@
 // src/routes/chat.routes.js
 const router = require("express").Router();
-const ctrl   = require("../controllers/chat.controller");
-const { requireAuth } = require("../middleware/auth.middleware");
+const ctrl   = require("../controllers/chat.contoller");
+const { requireAuth } = require("../middleware/auth");
 const { chatLimiter } = require("../middleware/rateLimiter.middleware");
 
 router.use(requireAuth);
+
+// Simple stateless chat endpoint (used by the frontend ChatExperience)
+router.post("/", chatLimiter, ctrl.simpleChat);
+
+// Conversation-based endpoints
 router.post("/conversations",                              ctrl.createConversation);
 router.get("/conversations",                               ctrl.getConversations);
 router.get("/conversations/:id",                           ctrl.getConversation);
