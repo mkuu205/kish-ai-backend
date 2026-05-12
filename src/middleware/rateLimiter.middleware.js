@@ -19,8 +19,11 @@ const authLimiter = makeRateLimiter(config.rateLimits?.auth);
 
 const apiLimiter = makeRateLimiter(config.rateLimits?.api);
 
+const chatLimiter = makeRateLimiter({ windowMs: 60 * 1000, max: 30 });
+
 module.exports = {
   authLimiter,
   apiLimiter,
+  chatLimiter,
   makeRateLimiter,
 };
