@@ -2,7 +2,7 @@
 const aiSvc  = require("../services/ai.service");
 const R      = require("../utils/response");
 const logger = require("../utils/logger");
-const config = require("../config");
+const config = require("../../config");
 const xss    = require("xss");
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
