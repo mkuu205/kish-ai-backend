@@ -19,6 +19,8 @@ const {
   authLimiter,
 } = require("../middleware/rateLimiter.middleware");
 
+const authMiddleware = require("../middleware/auth.middleware");
+
 // Register
 router.post(
   "/register",
@@ -47,6 +49,18 @@ router.post(
 router.post(
   "/refresh",
   refreshToken
+);
+
+// CURRENT USER
+router.get(
+  "/me",
+  authMiddleware,
+  async (req, res) => {
+    res.json({
+      success: true,
+      user: req.user,
+    });
+  }
 );
 
 module.exports = router;
