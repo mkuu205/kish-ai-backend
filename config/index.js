@@ -57,6 +57,33 @@ module.exports = {
   accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
   refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
 },
+
+  plans: {
+    free: {
+      messagesPerDay: 10,
+      maxTokens: 1024,
+      webSearch: false,
+      imageUpload: false,
+      customPersona: false,
+      modes: ["general"],
+    },
+    pro: {
+      messagesPerDay: Infinity,
+      maxTokens: 4096,
+      webSearch: true,
+      imageUpload: true,
+      customPersona: true,
+      modes: ["general", "code", "research", "creative", "tutor"],
+    },
+    enterprise: {
+      messagesPerDay: Infinity,
+      maxTokens: 8192,
+      webSearch: true,
+      imageUpload: true,
+      customPersona: true,
+      modes: ["general", "code", "research", "creative", "tutor"],
+    },
+  },
   
   database: {
     url: process.env.DATABASE_URL || "",
