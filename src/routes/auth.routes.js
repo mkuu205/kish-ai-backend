@@ -1,5 +1,4 @@
 const express = require("express");
-
 const router = express.Router();
 
 const {
@@ -7,6 +6,7 @@ const {
   login,
   verifyOtp,
   refreshToken,
+  getMe,
 } = require("../controllers/auth.controller");
 
 const {
@@ -19,7 +19,9 @@ const {
   authLimiter,
 } = require("../middleware/rateLimiter.middleware");
 
-const { auth } = require("../middleware/auth.middleware");
+const {
+  auth,
+} = require("../middleware/auth.middleware");
 
 // Register
 router.post(
@@ -55,12 +57,7 @@ router.post(
 router.get(
   "/me",
   auth,
-  async (req, res) => {
-    res.json({
-      success: true,
-      user: req.user,
-    });
-  }
+  getMe
 );
 
 module.exports = router;
