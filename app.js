@@ -7,7 +7,6 @@ const pinoHttp = require("pino-http");
 const logger = require("./src/utils/logger");
 const config = require("./config");
 
-// Direct route import
 const authRoutes = require("./src/routes/auth.routes");
 
 const {
@@ -16,6 +15,7 @@ const {
 } = require("./src/middleware/error.middleware");
 
 const app = express();
+app.set("trust proxy", 1);
 
 // ─────────────────────────────────────────────────────────────
 // Security
